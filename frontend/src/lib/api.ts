@@ -95,6 +95,13 @@ export const Api = {
   metadataById: (source: string, id: string) =>
     api.get<SourceDetail>(`/metadata/${source}/${id}`).then(r => r.data),
 
+  exportMovie: (source: string, code: string) =>
+    api.post<{ ok: boolean; source: string; code: string; output: string; files: string[] }>(
+      "/export", { source, code }).then(r => r.data),
+  exportZip: (source: string, code: string) =>
+    api.get<Blob>("/export.zip", { params: { source, code }, responseType: "blob" })
+      .then(r => r.data),
+
   getSettings: () => api.get<SettingsOut>("/settings").then(r => r.data),
   updateSettings: (patch: SettingsPatch) =>
     api.put<SettingsOut>("/settings", patch).then(r => r.data),

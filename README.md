@@ -17,6 +17,7 @@
 - **番號一次查三來源**：並行查詢，各來源回傳同形狀的 canonical JSON，可互相比對補全
 - **不需任何 API key**：三個來源都是直接爬取；MissAV / JavTrailers 在 Cloudflare 後面，已用 `curl_cffi` 模擬瀏覽器 TLS 指紋處理
 - **圖片代理**：來源站的封面 / 劇照有 Referer 防盜連，`/api/image` 會帶正確的 Referer；`crop=cover` 可把 DVD 封面橫向合圖（背面+正面）自動裁出右半的正面
+- **Emby / Jellyfin NFO 輸出**：一鍵輸出電影資料夾（`movie.nfo` + 裁切後 `poster.jpg` + `fanart.jpg` + `extrafanart/` 劇照）到 `output/`
 - **來源啟用開關**：設定頁可個別停用來源，立即生效並持久化
 - **30 分鐘查詢快取**：同番號重複查詢（含 preview → metadata 接續呼叫）不會重抓來源站
 - **統一 API 家族**：`/api/preview`、`/api/metadata`、`/api/sources`、`/api/settings` 與姊妹作完全同形
@@ -35,6 +36,8 @@ backend/
       sources.py         #   GET /api/sources        來源清單與狀態
       settings.py        #   GET/PUT /api/settings   執行期設定
       image.py           #   GET /api/image          圖片代理
+      export.py          #   POST /api/nfo/movie + /api/export  NFO 輸出
+    nfo.py               # movie.nfo XML 產生 + 檔案輸出
     sources/
       base.py            # canonical schema 定義 + Movie→canonical 轉換
       __init__.py        # SOURCES registry + 30 分鐘快取 ← 新來源在這裡註冊
@@ -55,7 +58,7 @@ main.py                  # CLI：py main.py SSIS-001 [--provider missav]
 docker compose up -d --build
 ```
 
-開 http://localhost:7712 。`./data` 掛載為設定持久化目錄。
+開 http://localhost:7712 。`./data` 是設定持久化、`./output` 是 NFO 輸出目錄。
 
 ### 本機開發
 
@@ -170,6 +173,47 @@ curl "http://localhost:7712/api/metadata/javbus/SSIS-001"
 - 依 host 白名單帶上正確的 Referer（javbus / dmm / fourhoi / javtrailers 等）
 - `crop=cover`：偵測到寬高比 > 1.4 的 DVD 合圖時，自動裁出右半的正面封面
 - 回應帶 `Cache-Control: public, max-age=86400`
+
+### `POST /api/nfo/movie` — 產生 movie.nfo XML（不寫檔）
+
+```bash
+curl -X POST http://localhost:7712/api/nfo/movie \
+  -H "Content-Type: application/json" \
+  -d '{"source": "javbus", "code": "SSIS-001"}'
+```
+
+### `GET /api/export.zip?source=&code=` — 打包 ZIP 下載
+
+網頁上每張來源卡片的「📦 下載 NFO + 圖片 (ZIP)」按鈕就是打這支。
+ZIP 內是一層 `{CODE}/` 資料夾，解壓即為 Emby 電影資料夾。
+
+```bash
+curl -OJ "http://localhost:7712/api/export.zip?source=javbus&code=SSIS-001"
+```
+
+### `POST /api/export` — 輸出到伺服器端 output/
+
+同一套檔案改為直接寫到伺服器的 `output/{CODE}/`（Docker 掛載 `./output`），
+適合服務跟媒體庫在同一台機器的情境。
+
+```bash
+curl -X POST http://localhost:7712/api/export \
+  -H "Content-Type: application/json" \
+  -d '{"source": "javbus", "code": "SSIS-001"}'
+```
+
+輸出結構（Emby / Jellyfin 電影慣例，一部片一個資料夾）：
+
+```
+output/SSIS-001/
+├── movie.nfo             # 標題(帶番號前綴)/劇情/導演/片商/系列(set)/類別/演員/uniqueid
+├── poster.jpg            # 裁切後的正面封面
+├── fanart.jpg            # 完整封面
+└── extrafanart/          # 劇照（JavBus 來源才有）
+    ├── fanart1.jpg ...
+```
+
+同步執行（單片幾秒內完成），回傳 `{ok, output, files}`。同番號重複輸出會覆寫，以最後一次選的來源為準。
 
 ### `GET / PUT /api/settings` — 執行期設定
 

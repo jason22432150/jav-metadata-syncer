@@ -10,6 +10,7 @@ services:
       - "7712:7712"
     volumes:
       - ./data:/app/data       # persists runtime settings written via /api/settings
+      - ./output:/app/output   # Emby 電影資料夾輸出（movie.nfo + 圖片）
     environment:
       # These env vars seed the initial defaults. Anything saved through the
       # UI later overrides them and persists across container restarts.

@@ -95,6 +95,27 @@ export default function Lookup() {
 function SourceCard({ d }: { d: SourceDetail }) {
   const accent = ACCENT[d.source] ?? "#8b949e";
   const label = d.source.toUpperCase();
+  const [exportMsg, setExportMsg] = useState("");
+  const [exporting, setExporting] = useState(false);
+
+  async function doExport() {
+    setExporting(true);
+    setExportMsg("打包中…（含下載封面與劇照，數秒）");
+    try {
+      const blob = await Api.exportZip(d.source, d.code);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${d.code}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setExportMsg("✅ 已下載 ZIP（解壓即為 Emby 電影資料夾）");
+    } catch (e: any) {
+      setExportMsg("❌ " + (e?.response?.data?.detail ?? e.message));
+    } finally {
+      setExporting(false);
+    }
+  }
 
   if (!d.id) {
     return (
@@ -137,6 +158,16 @@ function SourceCard({ d }: { d: SourceDetail }) {
           <div style={{ fontSize: 17, fontWeight: 700, lineHeight: 1.4, wordBreak: "break-word" }}>
             {d.title || "(無標題)"}
           </div>
+          <div style={{ marginTop: 10 }}>
+            <button onClick={doExport} disabled={exporting} style={{ fontSize: 13, padding: "6px 12px" }}>
+              📦 下載 NFO + 圖片 (ZIP)
+            </button>
+          </div>
+          {exportMsg && (
+            <div style={{ marginTop: 6, fontSize: 12, color: "#8b949e", wordBreak: "break-all" }}>
+              {exportMsg}
+            </div>
+          )}
         </div>
       </div>
 

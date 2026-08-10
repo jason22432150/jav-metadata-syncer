@@ -21,12 +21,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/app ./app
 COPY --from=frontend-build /build/dist ./static
 
-# Persisted runtime settings live in /app/data
-RUN mkdir -p /app/data
-VOLUME ["/app/data"]
+# Persisted runtime settings live in /app/data; NFO output in /app/output
+RUN mkdir -p /app/data /app/output
+VOLUME ["/app/data", "/app/output"]
 
 ENV CORS_ORIGINS=* \
     DATA_DIR=/app/data \
+    OUTPUT_DIR=/app/output \
     PYTHONUNBUFFERED=1 \
     TZ=Asia/Taipei
 

@@ -10,8 +10,9 @@ class Settings(BaseSettings):
     # 啟用的來源（逗號分隔）；停用的來源不參與搜尋
     enabled_sources: str = "javbus,javtrailers,missav"
 
-    # 設定持久化目錄（Docker 內以 env 覆寫為 /app/data）
+    # 目錄（Docker 內以 env 覆寫為 /app/data、/app/output）
     data_dir: str = "./data"
+    output_dir: str = "./output"
 
 
 settings = Settings()

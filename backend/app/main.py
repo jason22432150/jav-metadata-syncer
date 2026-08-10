@@ -9,7 +9,7 @@ from .config import settings
 from . import runtime_settings
 from .api import (
     preview, metadata as metadata_api, sources as sources_api,
-    settings as settings_api, image,
+    settings as settings_api, image, export,
 )
 
 app = FastAPI(
@@ -42,6 +42,7 @@ app.include_router(preview.router)
 app.include_router(metadata_api.router)
 app.include_router(settings_api.router)
 app.include_router(image.router)
+app.include_router(export.router)
 
 
 @app.on_event("startup")
