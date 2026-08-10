@@ -12,6 +12,12 @@
 | [show-metadata-syncer](https://github.com/acer1204/show-metadata-syncer) | 電視節目 / 電影 | TheTVDB、TMDB |
 | **jav-metadata-syncer**（本專案） | 成人影片 | JavBus、JavTrailers、MissAV |
 
+## 預覽
+
+| 查詢主畫面（多來源比對） | 設定 | API 文件（/docs） |
+|---|---|---|
+| ![search](preview/preview02.png) | ![settings](preview/preview01.png) | ![docs](preview/preview03.png) |
+
 ## 特色
 
 - **番號一次查三來源**：並行查詢，各來源回傳同形狀的 canonical JSON，可互相比對補全
