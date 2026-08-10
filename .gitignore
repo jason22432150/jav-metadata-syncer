@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node / frontend build
+node_modules/
+dist/
+build/
+.vite/
+
+# Runtime data
+data/
+*.db
+*.sqlite
+
+# Local env overrides
+.env
+.env.local
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/

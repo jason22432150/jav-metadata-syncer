@@ -1,0 +1,18 @@
+name: jav-metadata-syncer
+
+services:
+  syncer:
+    build: .
+    image: jav-metadata-syncer:latest
+    container_name: jav-metadata-syncer
+    restart: unless-stopped
+    ports:
+      - "7712:7712"
+    volumes:
+      - ./data:/app/data       # persists runtime settings written via /api/settings
+    environment:
+      # These env vars seed the initial defaults. Anything saved through the
+      # UI later overrides them and persists across container restarts.
+      ENABLED_SOURCES: "javbus,javtrailers,missav"
+      CORS_ORIGINS: "*"
+      TZ: Asia/Taipei
