@@ -7,6 +7,7 @@ const ACCENT: Record<string, string> = {
   missav: "#ffa000",
   fc2: "#00897b",
   jav321: "#546e7a",
+  "123av": "#e53935",
 };
 
 export default function Lookup() {
