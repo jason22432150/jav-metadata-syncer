@@ -7,7 +7,7 @@ from urllib.parse import urljoin
 import httpx
 from bs4 import BeautifulSoup
 
-from .base import BaseProvider, Movie, NotFoundError, ProviderError
+from .base import BaseProvider, Movie, NotFoundError, ProviderError, attr_str
 
 
 _HEADERS = {
@@ -165,8 +165,8 @@ class FC2Provider(BaseProvider):
     def _og(soup: BeautifulSoup) -> dict[str, str]:
         out: dict[str, str] = {}
         for m in soup.find_all("meta", property=True):
-            prop = m.get("property") or ""
-            content = m.get("content") or ""
+            prop = attr_str(m.get("property")) or ""
+            content = attr_str(m.get("content")) or ""
             if prop.startswith("og:") and content:
                 out[prop] = content
         return out
@@ -241,7 +241,7 @@ class FC2Provider(BaseProvider):
             ".items_article_TagArea a.tagTag, "
             ".items_article_TagArea a.tag.tagTag[data-tag]"
         ):
-            name = (a.get("data-tag") or a.get_text() or "").strip()
+            name = (attr_str(a.get("data-tag")) or a.get_text() or "").strip()
             if name and name not in seen:
                 seen.add(name)
                 out.append(name)
@@ -251,7 +251,7 @@ class FC2Provider(BaseProvider):
         urls: list[str] = []
         seen: set[str] = set()
         for a in soup.select(".items_article_SampleImagesArea a[href]"):
-            href = self._abs_url(a.get("href"))
+            href = self._abs_url(attr_str(a.get("href")))
             if href and href not in seen:
                 seen.add(href)
                 urls.append(href)

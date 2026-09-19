@@ -7,7 +7,7 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from curl_cffi.requests import AsyncSession
 
-from .base import Actress, BaseProvider, Movie, NotFoundError, ProviderError
+from .base import Actress, BaseProvider, Movie, NotFoundError, ProviderError, attr_str
 
 _UA = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -66,7 +66,7 @@ class JavTrailersProvider(BaseProvider):
         soup = BeautifulSoup(html, "lxml")
 
         og_image = soup.select_one('meta[property="og:image"]')
-        cover_url = og_image.get("content") if og_image else None
+        cover_url = attr_str(og_image.get("content")) if og_image else None
 
         h1 = soup.select_one("h1")
         title = h1.get_text(strip=True) if h1 else ""

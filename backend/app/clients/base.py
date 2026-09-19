@@ -5,6 +5,18 @@ from dataclasses import dataclass, field, asdict
 from typing import Any
 
 
+def attr_str(value: str | list[str] | None) -> str | None:
+    """將 BeautifulSoup ``Tag.get()`` 的 AttributeValue 正規化為單一字串。
+
+    bs4 型別定義回傳 ``str | list[str] | None``；多值屬性（如 class）為 list。
+    """
+    if value is None:
+        return None
+    if isinstance(value, list):
+        return value[0] if value else None
+    return value
+
+
 @dataclass
 class Actress:
     name: str

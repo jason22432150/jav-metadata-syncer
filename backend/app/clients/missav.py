@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import re
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlparse
 
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup
 from curl_cffi.requests import AsyncSession
 
-from .base import Actress, BaseProvider, Movie, NotFoundError, ProviderError
+from .base import Actress, BaseProvider, Movie, NotFoundError, ProviderError, attr_str
 
 
 class MissAVProvider(BaseProvider):
@@ -50,11 +50,11 @@ class MissAVProvider(BaseProvider):
         og = self._og_tags(soup)
 
         # If we landed on the homepage (no og:type=video.*), the code is missing.
-        og_type = og.get("og:type", "")
+        og_type = og.get("og:type") or ""
         if not og_type.startswith("video"):
             raise NotFoundError(f"missav: {code} not found (no video page)")
 
-        title = self._strip_code(og.get("og:title", ""), code)
+        title = self._strip_code(og.get("og:title") or "", code)
         actresses = [Actress(name=a) for a in og.get_all("og:video:actor")]
         secondary = self._secondary_dict(soup)
 
@@ -98,8 +98,8 @@ class MissAVProvider(BaseProvider):
     def _og_tags(self, soup: BeautifulSoup) -> "MissAVProvider._OG":
         items: list[tuple[str, str]] = []
         for m in soup.find_all("meta", property=True):
-            prop = m.get("property") or ""
-            content = m.get("content") or ""
+            prop = attr_str(m.get("property")) or ""
+            content = attr_str(m.get("content")) or ""
             if prop.startswith("og:") and content:
                 items.append((prop, content))
         return self._OG(items)
@@ -152,7 +152,9 @@ class MissAVProvider(BaseProvider):
         out: list[str] = []
         seen: set[str] = set()
         for a in soup.find_all("a", href=True):
-            href = a["href"]
+            href = attr_str(a.get("href"))
+            if not href:
+                continue
             path = urlparse(href).path
             # /genres/<slug> on MissAV are tag pages
             if "/genres/" in path:

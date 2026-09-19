@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 import httpx
 from bs4 import BeautifulSoup, Tag
 
-from .base import Actress, BaseProvider, Movie, NotFoundError, ProviderError
+from .base import Actress, BaseProvider, Movie, NotFoundError, ProviderError, attr_str
 
 
 _HEADERS = {
@@ -90,7 +90,7 @@ class JavBusProvider(BaseProvider):
         img = root.select_one("a.bigImage img")
         if not img:
             return None
-        src = img.get("src") or img.get("data-src")
+        src = attr_str(img.get("src")) or attr_str(img.get("data-src"))
         return urljoin(self.base_url + "/", src) if src else None
 
     _LABEL_MAP = {
@@ -147,7 +147,7 @@ class JavBusProvider(BaseProvider):
             name = name_tag.get_text(strip=True) if name_tag else ""
             if not name:
                 continue
-            image = img.get("src") if img else None
+            image = attr_str(img.get("src")) if img else None
             out.append(
                 Actress(
                     name=name,
@@ -160,7 +160,7 @@ class JavBusProvider(BaseProvider):
         nodes = soup.select("#sample-waterfall a.sample-box")
         urls: list[str] = []
         for a in nodes:
-            href = a.get("href")
+            href = attr_str(a.get("href"))
             if href:
                 urls.append(urljoin(self.base_url + "/", href))
         return urls
