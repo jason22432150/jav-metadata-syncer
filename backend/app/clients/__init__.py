@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from .base import BaseProvider, Movie, Actress, ProviderError, NotFoundError
+from .fc2 import FC2Provider
 from .javbus import JavBusProvider
 from .javtrailers import JavTrailersProvider
 from .missav import MissAVProvider
@@ -9,6 +10,7 @@ PROVIDERS: dict[str, type[BaseProvider]] = {
     JavBusProvider.name: JavBusProvider,
     JavTrailersProvider.name: JavTrailersProvider,
     MissAVProvider.name: MissAVProvider,
+    FC2Provider.name: FC2Provider,
 }
 
 

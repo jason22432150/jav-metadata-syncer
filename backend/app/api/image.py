@@ -24,8 +24,24 @@ _REFERER_BY_HOST = {
     "cdn.javtrailers.com": "https://javtrailers.com/",
     "images.javtrailers.com": "https://javtrailers.com/",
     "pics.vpdmm.cc": "https://javtrailers.com/",
+    "contents-thumbnail2.fc2.com": "https://adult.contents.fc2.com/",
 }
 _ALLOWED_IMAGE_HOSTS = set(_REFERER_BY_HOST)
+_FC2_STORAGE_SUFFIX = ".contents.fc2.com"
+_FC2_REFERER = "https://adult.contents.fc2.com/"
+
+
+def _image_referer(host: str) -> str | None:
+    """依 host 回傳 Referer；FC2 storage CDN 為動態子網域。"""
+    if host in _REFERER_BY_HOST:
+        return _REFERER_BY_HOST[host]
+    if host.endswith(_FC2_STORAGE_SUFFIX):
+        return _FC2_REFERER
+    return None
+
+
+def _host_allowed(host: str) -> bool:
+    return host in _ALLOWED_IMAGE_HOSTS or host.endswith(_FC2_STORAGE_SUFFIX)
 
 
 def _crop_front_cover(data: bytes) -> tuple[bytes, str]:
@@ -50,11 +66,13 @@ async def image_proxy(
     crop: str | None = Query(None, description="'cover' to auto-crop DVD jacket front"),
 ):
     parsed = urlparse(url)
-    if parsed.scheme not in ("http", "https") or parsed.netloc not in _ALLOWED_IMAGE_HOSTS:
+    host = parsed.hostname or ""
+    if parsed.scheme not in ("http", "https") or not _host_allowed(host):
         raise HTTPException(status_code=400, detail="host not allowed")
+    referer = _image_referer(host) or f"{parsed.scheme}://{host}/"
     headers = {
         "User-Agent": "Mozilla/5.0",
-        "Referer": _REFERER_BY_HOST.get(parsed.netloc, f"{parsed.scheme}://{parsed.netloc}/"),
+        "Referer": referer,
     }
     async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
         r = await client.get(url, headers=headers)
