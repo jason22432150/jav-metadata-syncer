@@ -6,17 +6,23 @@
 
 本專案與姊妹作使用完全相同的架構與 API 形狀，client 可以用同一套整合程式碼接三個服務：
 
-| 專案 | 領域 | 來源 |
-|---|---|---|
-| [comic-metadata-syncer](https://github.com/acer1204/comic-metadata-syncer) | 漫畫 | Bangumi、AniList |
-| [show-metadata-syncer](https://github.com/acer1204/show-metadata-syncer) | 電視節目 / 電影 | TheTVDB、TMDB |
-| **jav-metadata-syncer**（本專案） | 成人影片 | JavBus、JavTrailers、MissAV |
+
+| 專案                                                                         | 領域        | 來源                        |
+| -------------------------------------------------------------------------- | --------- | ------------------------- |
+| [comic-metadata-syncer](https://github.com/acer1204/comic-metadata-syncer) | 漫畫        | Bangumi、AniList           |
+| [show-metadata-syncer](https://github.com/acer1204/show-metadata-syncer)   | 電視節目 / 電影 | TheTVDB、TMDB              |
+| **jav-metadata-syncer**（本專案）                                               | 成人影片      | JavBus、JavTrailers、MissAV |
+
 
 ## 預覽
 
-| 查詢主畫面（多來源比對） | 設定 | API 文件（/docs） |
-|---|---|---|
+
+| 查詢主畫面（多來源比對）                     | 設定                                 | API 文件（/docs）                  |
+| -------------------------------- | ---------------------------------- | ------------------------------ |
 | ![search](preview/preview02.png) | ![settings](preview/preview01.png) | ![docs](preview/preview03.png) |
+
+
+
 
 ## 特色
 
@@ -27,6 +33,8 @@
 - **來源啟用開關**：設定頁可個別停用來源，立即生效並持久化
 - **30 分鐘查詢快取**：同番號重複查詢（含 preview → metadata 接續呼叫）不會重抓來源站
 - **統一 API 家族**：`/api/preview`、`/api/metadata`、`/api/sources`、`/api/settings` 與姊妹作完全同形
+
+
 
 ## 專案結構
 
@@ -56,7 +64,11 @@ frontend/                # React + Vite 深色主題（查詢 / 設定 兩頁）
 main.py                  # CLI：py main.py SSIS-001 [--provider missav]
 ```
 
+
+
 ## 快速開始
+
+
 
 ### Docker（建議）
 
@@ -64,7 +76,7 @@ main.py                  # CLI：py main.py SSIS-001 [--provider missav]
 docker compose up -d --build
 ```
 
-開 http://localhost:7712 。`./data` 是設定持久化、`./output` 是 NFO 輸出目錄。
+開 [http://localhost:7712](http://localhost:7712) 。`./data` 是設定持久化、`./output` 是 NFO 輸出目錄。
 
 ### 本機開發
 
@@ -80,16 +92,20 @@ npm install
 npm run dev
 ```
 
+
+
 ### CLI
 
 ```bash
-py main.py SSIS-001                       # 預設查 javbus，輸出 JSON
+py main.py SSIS-001                       # 預設查 javbus，輸出 JSON[內碼] 
 py main.py CAWD-088 --provider missav     # 指定來源
 ```
 
+
+
 ## API 說明
 
-互動式文件（Swagger）：http://localhost:7712/docs
+互動式文件（Swagger）：[http://localhost:7712/docs](http://localhost:7712/docs)
 
 ### `GET /api/sources` — 來源清單與狀態
 
@@ -125,6 +141,8 @@ client 建議先打這支決定要查哪些來源。停用的來源（`enabled: 
   "hint": ""
 }
 ```
+
+
 
 ### `GET /api/metadata?q=SSIS-001&source=all` — 完整 canonical JSON
 
@@ -180,6 +198,8 @@ curl "http://localhost:7712/api/metadata/javbus/SSIS-001"
 - `crop=cover`：偵測到寬高比 > 1.4 的 DVD 合圖時，自動裁出右半的正面封面
 - 回應帶 `Cache-Control: public, max-age=86400`
 
+
+
 ### `POST /api/nfo/movie` — 產生 movie.nfo XML（不寫檔）
 
 ```bash
@@ -187,6 +207,8 @@ curl -X POST http://localhost:7712/api/nfo/movie \
   -H "Content-Type: application/json" \
   -d '{"source": "javbus", "code": "SSIS-001"}'
 ```
+
+
 
 ### `GET /api/export.zip?source=&code=` — 打包 ZIP 下載
 
@@ -196,6 +218,8 @@ ZIP 內是一層 `{CODE}/` 資料夾，解壓即為 Emby 電影資料夾。
 ```bash
 curl -OJ "http://localhost:7712/api/export.zip?source=javbus&code=SSIS-001"
 ```
+
+
 
 ### `POST /api/export` — 輸出到伺服器端 output/
 
@@ -242,11 +266,12 @@ curl -X PUT http://localhost:7712/api/settings \
 3. 所有圖片 URL 一律包成 /api/image?url=…（防盜連）
 ```
 
+
+
 ## 新增來源
 
 1. 在 `backend/app/clients/` 加一個 provider：
-
-   ```python
+  ```python
    from .base import BaseProvider, Movie, Actress, NotFoundError
 
    class MyProvider(BaseProvider):
@@ -256,8 +281,7 @@ curl -X PUT http://localhost:7712/api/settings \
        async def search(self, code: str) -> Movie:
            ...
            return Movie(provider=self.name, code=code, title=..., ...)
-   ```
-
+  ```
 2. 在 `backend/app/clients/__init__.py` 的 `PROVIDERS` 註冊
 3. 在 `backend/app/sources/__init__.py` 的 `_PROVIDERS` 加上它
 4. 若圖片來自新 CDN，把 host + Referer 加進 `backend/app/api/image.py` 的 `_REFERER_BY_HOST`
@@ -267,10 +291,12 @@ curl -X PUT http://localhost:7712/api/settings \
 ## 已知注意事項
 
 - **MissAV / JavTrailers 較慢**（2–4 秒）：Cloudflare 驗證的往返成本，屬正常現象
-- **JavBus 需要 `existmag=all` cookie**（已內建），否則資訊區塊會是空的
+- **JavBus 需要** `existmag=all` **cookie**（已內建），否則資訊區塊會是空的
 - **部分番號沒有演員資訊**：來源頁面本身就沒有，回空陣列是正確行為
 - **MissAV 的劇照是 JS 動態載入**，不在爬取範圍（`sample_images` 為空）
 - Windows 主控台預設 cp950 印不出日文，CLI 已自動切 UTF-8；用 PowerShell 呼叫 API 沒問題（回應已帶 `charset=utf-8`）
+
+
 
 ## 免責聲明
 

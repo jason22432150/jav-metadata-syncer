@@ -1,34 +1,92 @@
 # Python
 __pycache__/
 *.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+.eggs/
+wheels/
+pip-wheel-metadata/
 .venv/
 venv/
+ENV/
+env/
 
-# Node / frontend build
-node_modules/
-dist/
+# Packaging / build
 build/
-.vite/
+dist/
+sdist/
+*.manifest
+*.spec
 
-# Runtime data
+# Testing / coverage / type checkers
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+.hypothesis/
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+.pytype/
+.pyre/
+.dmypy.json
+dmypy.json
+
+# Node / frontend
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/
+.yarn-integrity
+.vite/
+*.tsbuildinfo
+.turbo/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+*.local
+
+# Runtime data（設定持久化、SQLite 等）
 data/
 *.db
 *.sqlite
+*.sqlite3
 
-# Local env overrides
+# Local env overrides（保留 .env.example）
 .env
-.env.local
+.env.*
+!.env.example
 
 # Editor / OS
 .vscode/
 .idea/
 *.swp
+*.swo
+*~
 .DS_Store
 Thumbs.db
+Desktop.ini
 
-# Logs
+# Logs / temp
 *.log
 logs/
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
 
 # NFO export output
 output/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Docker（本機覆寫）
+docker-compose.override.yml
