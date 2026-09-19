@@ -1,6 +1,6 @@
 """Source registry.
 
-每個來源是 clients/ 裡的一個 provider（javbus / javtrailers / missav / fc2），
+每個來源是 clients/ 裡的一個 provider（javbus / javtrailers / missav / fc2 / jav321），
 由 ProviderSource 包成統一介面：
 
     NAME / REQUIRES_KEY / ready() / async search(q) / async full(item_id) / empty()
@@ -13,6 +13,7 @@ from typing import Any, Dict, List
 
 from ..clients import (
     FC2Provider,
+    Jav321Provider,
     JavBusProvider,
     JavTrailersProvider,
     MissAVProvider,
@@ -85,7 +86,13 @@ class ProviderSource:
         return empty_detail(self.NAME)
 
 
-_PROVIDERS = (JavBusProvider, JavTrailersProvider, MissAVProvider, FC2Provider)
+_PROVIDERS = (
+    JavBusProvider,
+    JavTrailersProvider,
+    MissAVProvider,
+    FC2Provider,
+    Jav321Provider,
+)
 
 SOURCES: Dict[str, ProviderSource] = {
     p.name: ProviderSource(p) for p in _PROVIDERS
