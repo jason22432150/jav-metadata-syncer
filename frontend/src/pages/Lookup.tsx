@@ -5,6 +5,8 @@ const ACCENT: Record<string, string> = {
   javbus: "#d81b60",
   javtrailers: "#7e57c2",
   missav: "#ffa000",
+  fc2: "#00897b",
+  jav321: "#546e7a",
 };
 
 export default function Lookup() {
